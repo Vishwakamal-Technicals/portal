@@ -1,3 +1,5 @@
+export { budgetOptions, timelineOptions } from "@/lib/contact";
+
 export type Capability = {
   id: string;
   title: string;
@@ -623,9 +625,6 @@ export const differentiators = [
   "Transparent communication with measurable milestones and accountability",
   "AI-ready solutions designed for rapid model integration, governed data flows, and production-safe enterprise rollout"
 ];
-
-export const budgetOptions = ["Under $25K", "$25K-$75K", "$75K-$150K", "$150K-$300K", "$300K+"];
-export const timelineOptions = ["0-3 months", "3-6 months", "6-12 months", "12+ months"];
 
 export const leadershipMembers: TeamMember[] = [
   {

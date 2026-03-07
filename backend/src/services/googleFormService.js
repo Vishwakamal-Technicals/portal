@@ -1,26 +1,35 @@
-const FORM_ID = process.env.GOOGLE_FORM_ID || "1FAIpQLSdXlOlYkmmXnfGSoFZ_j-ecZ7Ik1zg8vp_fmeA1vLnpr034aw";
-const FORM_RESPONSE_URL = `https://docs.google.com/forms/d/e/${FORM_ID}/formResponse`;
+function getRequiredEnv(name) {
+  const value = process.env[name];
 
-const ENTRY_MAP = {
-  name: process.env.GOOGLE_FORM_ENTRY_NAME || "1854352414",
-  company: process.env.GOOGLE_FORM_ENTRY_COMPANY || "1551622700",
-  email: process.env.GOOGLE_FORM_ENTRY_EMAIL || "2003448452",
-  budgetRange: process.env.GOOGLE_FORM_ENTRY_BUDGET || "1445698442",
-  timeline: process.env.GOOGLE_FORM_ENTRY_TIMELINE || "1304834734",
-  projectDescription: process.env.GOOGLE_FORM_ENTRY_PROJECT_DESCRIPTION || "1242231391"
-};
+  if (!value) {
+    throw new Error(`Missing required server environment variable: ${name}`);
+  }
+
+  return value;
+}
 
 export async function submitToGoogleForm(payload) {
+  const formId = getRequiredEnv("GOOGLE_FORM_ID");
+  const responseUrl = `https://docs.google.com/forms/d/e/${formId}/formResponse`;
+  const entryMap = {
+    name: getRequiredEnv("GOOGLE_FORM_ENTRY_NAME"),
+    company: getRequiredEnv("GOOGLE_FORM_ENTRY_COMPANY"),
+    email: getRequiredEnv("GOOGLE_FORM_ENTRY_EMAIL"),
+    budgetRange: getRequiredEnv("GOOGLE_FORM_ENTRY_BUDGET"),
+    timeline: getRequiredEnv("GOOGLE_FORM_ENTRY_TIMELINE"),
+    projectDescription: getRequiredEnv("GOOGLE_FORM_ENTRY_PROJECT_DESCRIPTION")
+  };
+
   const body = new URLSearchParams({
-    [`entry.${ENTRY_MAP.name}`]: payload.name,
-    [`entry.${ENTRY_MAP.company}`]: payload.company,
-    [`entry.${ENTRY_MAP.email}`]: payload.email,
-    [`entry.${ENTRY_MAP.budgetRange}`]: payload.budgetRange,
-    [`entry.${ENTRY_MAP.timeline}`]: payload.timeline,
-    [`entry.${ENTRY_MAP.projectDescription}`]: payload.projectDescription
+    [`entry.${entryMap.name}`]: payload.name,
+    [`entry.${entryMap.company}`]: payload.company,
+    [`entry.${entryMap.email}`]: payload.email,
+    [`entry.${entryMap.budgetRange}`]: payload.budgetRange,
+    [`entry.${entryMap.timeline}`]: payload.timeline,
+    [`entry.${entryMap.projectDescription}`]: payload.projectDescription
   });
 
-  const response = await fetch(FORM_RESPONSE_URL, {
+  const response = await fetch(responseUrl, {
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
     body: body.toString()

@@ -7,7 +7,7 @@ Enterprise-grade web application built as a single Next.js deployment target:
 
 ## Deploy on Vercel
 
-Deploy the `frontend` directory as the Vercel project root. The contact form is handled by internal Next.js route handlers, so no separate backend deployment is required.
+Deploy the repository root as the Vercel project root. The contact form is handled by internal Next.js route handlers, so no separate backend deployment is required.
 
 Required server environment variables:
 - `EMAIL_PROVIDER`
@@ -35,9 +35,16 @@ App health: `http://localhost:3000/api/health`
 ### Next.js application
 
 ```bash
-cd frontend
 npm install
 npm run dev
+```
+
+Production-style local run:
+
+```bash
+npm install
+npm run build
+npm run start
 ```
 
 ## Contact API
@@ -52,4 +59,4 @@ Payload:
 - `budgetRange`
 - `timeline`
 
-Google Form submission and notification adapters run server-side only. Email delivery abstraction is prepared in `frontend/lib/server/mailService.ts` for future AWS SES or Resend integration.
+Google Form submission and notification adapters run server-side only. Email delivery abstraction is prepared in `lib/server/mailService.ts` for future AWS SES or Resend integration.

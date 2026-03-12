@@ -1,10 +1,10 @@
 services:
   frontend:
     build:
-      context: ./frontend
+      context: .
     container_name: vishwakamal-web
     env_file:
-      - ./frontend/.env.local
+      - ./.env.local
     environment:
       - NODE_ENV=production
     ports:

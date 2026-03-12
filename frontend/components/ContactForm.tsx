@@ -1,63 +1,22 @@
 "use client";
 
 import { FormEvent, useState } from "react";
-import { budgetOptions, timelineOptions } from "@/lib/content";
-
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8080";
-const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-type FormValues = {
-  name: string;
-  company: string;
-  email: string;
-  budgetRange: string;
-  timeline: string;
-  projectDescription: string;
-};
-
-type FormErrors = Partial<Record<keyof FormValues, string>>;
+import {
+  ContactErrors,
+  ContactPayload,
+  budgetOptions,
+  timelineOptions,
+  validateContactField,
+  validateContactPayload
+} from "@/lib/contact";
 
 export function ContactForm() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [isError, setIsError] = useState(false);
-  const [errors, setErrors] = useState<FormErrors>({});
+  const [errors, setErrors] = useState<ContactErrors>({});
 
-  function validateField(name: keyof FormValues, value: string): string {
-    const trimmed = value.trim();
-
-    if (!trimmed) {
-      return "This field is required.";
-    }
-
-    if (name === "name" && trimmed.length < 2) {
-      return "Name must be at least 2 characters.";
-    }
-
-    if (name === "company" && trimmed.length < 2) {
-      return "Company must be at least 2 characters.";
-    }
-
-    if (name === "email" && !emailRegex.test(trimmed)) {
-      return "Enter a valid work email address.";
-    }
-
-    if (name === "budgetRange" && !budgetOptions.includes(trimmed)) {
-      return "Select a valid budget range.";
-    }
-
-    if (name === "timeline" && !timelineOptions.includes(trimmed)) {
-      return "Select a valid timeline.";
-    }
-
-    if (name === "projectDescription" && trimmed.length < 30) {
-      return "Project description must be at least 30 characters.";
-    }
-
-    return "";
-  }
-
-  function collectFormValues(formData: FormData): FormValues {
+  function collectFormValues(formData: FormData): ContactPayload {
     return {
       name: String(formData.get("name") || ""),
       company: String(formData.get("company") || ""),
@@ -68,17 +27,6 @@ export function ContactForm() {
     };
   }
 
-  function validateAll(values: FormValues): FormErrors {
-    const nextErrors: FormErrors = {};
-
-    (Object.keys(values) as Array<keyof FormValues>).forEach((key) => {
-      const error = validateField(key, values[key]);
-      if (error) nextErrors[key] = error;
-    });
-
-    return nextErrors;
-  }
-
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setLoading(true);
@@ -87,7 +35,7 @@ export function ContactForm() {
     const form = event.currentTarget;
     const formData = new FormData(form);
     const payload = collectFormValues(formData);
-    const nextErrors = validateAll(payload);
+    const nextErrors = validateContactPayload(payload);
 
     if (Object.keys(nextErrors).length > 0) {
       setErrors(nextErrors);
@@ -100,7 +48,7 @@ export function ContactForm() {
     setErrors({});
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/contact`, {
+      const response = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload)
@@ -133,7 +81,7 @@ export function ContactForm() {
             placeholder="Full name"
             onBlur={(event) => {
               const value = event.currentTarget.value;
-              setErrors((prev) => ({ ...prev, name: validateField("name", value) || undefined }));
+              setErrors((prev) => ({ ...prev, name: validateContactField("name", value) || undefined }));
             }}
             aria-invalid={Boolean(errors.name)}
           />
@@ -149,7 +97,7 @@ export function ContactForm() {
               const value = event.currentTarget.value;
               setErrors((prev) => ({
                 ...prev,
-                company: validateField("company", value) || undefined
+                company: validateContactField("company", value) || undefined
               }));
             }}
             aria-invalid={Boolean(errors.company)}
@@ -167,7 +115,7 @@ export function ContactForm() {
             placeholder="Work email"
             onBlur={(event) => {
               const value = event.currentTarget.value;
-              setErrors((prev) => ({ ...prev, email: validateField("email", value) || undefined }));
+              setErrors((prev) => ({ ...prev, email: validateContactField("email", value) || undefined }));
             }}
             aria-invalid={Boolean(errors.email)}
           />
@@ -183,7 +131,7 @@ export function ContactForm() {
               const value = event.currentTarget.value;
               setErrors((prev) => ({
                 ...prev,
-                budgetRange: validateField("budgetRange", value) || undefined
+                budgetRange: validateContactField("budgetRange", value) || undefined
               }));
             }}
             aria-invalid={Boolean(errors.budgetRange)}
@@ -209,7 +157,7 @@ export function ContactForm() {
             defaultValue=""
             onBlur={(event) => {
               const value = event.currentTarget.value;
-              setErrors((prev) => ({ ...prev, timeline: validateField("timeline", value) || undefined }));
+              setErrors((prev) => ({ ...prev, timeline: validateContactField("timeline", value) || undefined }));
             }}
             aria-invalid={Boolean(errors.timeline)}
           >
@@ -237,7 +185,7 @@ export function ContactForm() {
             const value = event.currentTarget.value;
             setErrors((prev) => ({
               ...prev,
-              projectDescription: validateField("projectDescription", value) || undefined
+              projectDescription: validateContactField("projectDescription", value) || undefined
             }));
           }}
           aria-invalid={Boolean(errors.projectDescription)}
@@ -248,9 +196,6 @@ export function ContactForm() {
         {loading ? "Submitting..." : "Submit Strategic Inquiry"}
       </button>
       {message ? <p className={isError ? "form-message error" : "form-message"}>{message}</p> : null}
-      <p className="integration-note">
-        Backend route is production-ready for future AWS SES or Resend integration via provider adapters.
-      </p>
     </form>
   );
 }

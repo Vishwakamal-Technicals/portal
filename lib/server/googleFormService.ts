@@ -1,33 +1,45 @@
 import "server-only";
 import { ContactPayload } from "@/lib/contact";
 
-function getRequiredEnv(name: string) {
-  const value = process.env[name];
+const googleFormEnvNames = [
+  "GOOGLE_FORM_ID",
+  "GOOGLE_FORM_ENTRY_NAME",
+  "GOOGLE_FORM_ENTRY_COMPANY",
+  "GOOGLE_FORM_ENTRY_EMAIL",
+  "GOOGLE_FORM_ENTRY_BUDGET",
+  "GOOGLE_FORM_ENTRY_TIMELINE",
+  "GOOGLE_FORM_ENTRY_PROJECT_DESCRIPTION"
+] as const;
 
-  if (!value) {
-    throw new Error(`Missing required server environment variable: ${name}`);
-  }
+function getGoogleFormEnv(name: (typeof googleFormEnvNames)[number]) {
+  return process.env[name]?.trim() || "";
+}
 
-  return value;
+function isGoogleFormConfigured() {
+  return googleFormEnvNames.every((name) => Boolean(getGoogleFormEnv(name)));
 }
 
 function getGoogleFormConfig() {
-  const formId = getRequiredEnv("GOOGLE_FORM_ID");
+  const formId = getGoogleFormEnv("GOOGLE_FORM_ID");
 
   return {
     responseUrl: `https://docs.google.com/forms/d/e/${formId}/formResponse`,
     entryMap: {
-      name: getRequiredEnv("GOOGLE_FORM_ENTRY_NAME"),
-      company: getRequiredEnv("GOOGLE_FORM_ENTRY_COMPANY"),
-      email: getRequiredEnv("GOOGLE_FORM_ENTRY_EMAIL"),
-      budgetRange: getRequiredEnv("GOOGLE_FORM_ENTRY_BUDGET"),
-      timeline: getRequiredEnv("GOOGLE_FORM_ENTRY_TIMELINE"),
-      projectDescription: getRequiredEnv("GOOGLE_FORM_ENTRY_PROJECT_DESCRIPTION")
+      name: getGoogleFormEnv("GOOGLE_FORM_ENTRY_NAME"),
+      company: getGoogleFormEnv("GOOGLE_FORM_ENTRY_COMPANY"),
+      email: getGoogleFormEnv("GOOGLE_FORM_ENTRY_EMAIL"),
+      budgetRange: getGoogleFormEnv("GOOGLE_FORM_ENTRY_BUDGET"),
+      timeline: getGoogleFormEnv("GOOGLE_FORM_ENTRY_TIMELINE"),
+      projectDescription: getGoogleFormEnv("GOOGLE_FORM_ENTRY_PROJECT_DESCRIPTION")
     }
   };
 }
 
 export async function submitToGoogleForm(payload: ContactPayload) {
+  if (!isGoogleFormConfigured()) {
+    return { accepted: false, provider: "google-forms", skipped: true, reason: "not-configured" };
+  }
+
   const config = getGoogleFormConfig();
 
   const body = new URLSearchParams({

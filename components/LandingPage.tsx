@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Hero } from "./Hero";
 import { Navbar } from "./Navbar";
 import { CapabilitiesSection } from "./Capabilities";
@@ -16,6 +16,8 @@ import {
   lifecycle,
   principles,
   proofMetrics,
+  internalContributors,
+  strategicPartners,
   technicalTeamMembers,
   techStack,
   testimonials
@@ -23,12 +25,25 @@ import {
 
 export function LandingPage() {
   const [expandedIndustry, setExpandedIndustry] = useState<string | null>(null);
-  const [expandedCase, setExpandedCase] = useState<string | null>(null);
   const [expandedTestimonial, setExpandedTestimonial] = useState<string | null>(null);
-  const [expandedLifecycle, setExpandedLifecycle] = useState<string | null>(null);
   const [expandedEngagement, setExpandedEngagement] = useState<string | null>(null);
+  const [activeCaseIndex, setActiveCaseIndex] = useState(0);
+  const [isCaseCarouselPaused, setIsCaseCarouselPaused] = useState(false);
+
+  useEffect(() => {
+    if (isCaseCarouselPaused || caseStudies.length <= 1) {
+      return;
+    }
+
+    const timer = window.setInterval(() => {
+      setActiveCaseIndex((current) => (current + 1) % caseStudies.length);
+    }, 4200);
+
+    return () => window.clearInterval(timer);
+  }, [isCaseCarouselPaused]);
 
   const truncate = (value: string, max = 150) => (value.length > max ? `${value.slice(0, max)}...` : value);
+  const activeCase = caseStudies[activeCaseIndex] || caseStudies[0];
 
   return (
     <>
@@ -65,23 +80,9 @@ export function LandingPage() {
             <div className="lifecycle-grid">
               {lifecycle.map((item, index) => (
                 <FadeIn key={item.title} delay={index * 0.06}>
-                  <article
-                    className={`card lifecycle-card expandable-card ${
-                      expandedLifecycle === item.title ? "expanded" : ""
-                    }`}
-                    role="button"
-                    tabIndex={0}
-                    onClick={() => setExpandedLifecycle(expandedLifecycle === item.title ? null : item.title)}
-                    onKeyDown={(event) => {
-                      if (event.key === "Enter" || event.key === " ") {
-                        event.preventDefault();
-                        setExpandedLifecycle(expandedLifecycle === item.title ? null : item.title);
-                      }
-                    }}
-                  >
+                  <article className="card lifecycle-card">
                     <h4>{item.title}</h4>
-                    <p>{expandedLifecycle === item.title ? item.detail : truncate(item.detail, 118)}</p>
-                    <p className="expand-hint">{expandedLifecycle === item.title ? "Click to collapse" : "Click to expand"}</p>
+                    <p>{item.detail}</p>
                   </article>
                 </FadeIn>
               ))}
@@ -101,9 +102,29 @@ export function LandingPage() {
           <div className="about-grid about-leadership-grid">
             {leadershipMembers.map((member, index) => (
               <FadeIn key={member.name} delay={index * 0.08}>
-                <article className="card about-card">
-                  <div className="about-photo-wrap">
-                    <img src={member.imageUrl} alt={member.imageAlt} loading="lazy" />
+                <article className="card about-card leadership-card">
+                  <div className="leadership-photo-frame">
+                    <div className="about-photo-wrap leadership-photo-wrap">
+                      <img src={member.imageUrl} alt={member.imageAlt} loading="lazy" />
+                    </div>
+                  </div>
+                  <div className="leadership-copy">
+                    <h3>{member.name}</h3>
+                    <p className="about-title">{member.title}</p>
+                    <p>{member.vision}</p>
+                  </div>
+                </article>
+              </FadeIn>
+            ))}
+          </div>
+          <h3 className="subheading">Technical Team</h3>
+          <div className="technical-team-grid">
+            {technicalTeamMembers.map((member, index) => (
+              <FadeIn key={member.name} delay={index * 0.08}>
+                <article className="card technical-card">
+                  <div className="technical-card-topline">
+                    <span className="technical-index">{String(index + 1).padStart(2, "0")}</span>
+                    <span className="technical-role-chip">{member.title.replace("Practice Head ", "")}</span>
                   </div>
                   <h3>{member.name}</h3>
                   <p className="about-title">{member.title}</p>
@@ -112,13 +133,30 @@ export function LandingPage() {
               </FadeIn>
             ))}
           </div>
-          <h3 className="subheading">Technical Team</h3>
-          <div className="about-grid">
-            {technicalTeamMembers.map((member, index) => (
+          <h3 className="subheading">Strategic Partners</h3>
+          <div className="technical-team-grid strategic-partners-grid">
+            {strategicPartners.map((member, index) => (
               <FadeIn key={member.name} delay={index * 0.08}>
-                <article className="card about-card">
-                  <div className="about-photo-wrap">
-                    <img src={member.imageUrl} alt={member.imageAlt} loading="lazy" />
+                <article className="card technical-card strategic-partner-card">
+                  <div className="technical-card-topline">
+                    <span className="technical-index">{String(index + 1).padStart(2, "0")}</span>
+                    <span className="technical-role-chip">Wealth Management</span>
+                  </div>
+                  <h3>{member.name}</h3>
+                  <p className="about-title">{member.title}</p>
+                  <p>{member.vision}</p>
+                </article>
+              </FadeIn>
+            ))}
+          </div>
+          <h3 className="subheading">Foundations Circle</h3>
+          <div className="technical-team-grid strategic-partners-grid">
+            {internalContributors.map((member, index) => (
+              <FadeIn key={member.name} delay={index * 0.08}>
+                <article className="card technical-card strategic-partner-card">
+                  <div className="technical-card-topline">
+                    <span className="technical-index">{String(index + 1).padStart(2, "0")}</span>
+                    <span className="technical-role-chip">Internal Contributor</span>
                   </div>
                   <h3>{member.name}</h3>
                   <p className="about-title">{member.title}</p>
@@ -228,51 +266,86 @@ export function LandingPage() {
         <Container>
           <SectionHeader
             eyebrow="Case Studies"
-            title="Transformation outcomes delivered through technical precision"
-            subtitle="Representative examples of architecture modernization, AI enablement, and enterprise automation."
+            title="Backend problem solving and modern AI systems, shown in a compact animated reel"
+            subtitle="A tighter showcase of reliability work, RAG pipelines, and production-safe AI patterns without turning the page into a long wall of cards."
           />
-          <div className="case-grid">
-            {caseStudies.map((study, index) => (
-              <FadeIn key={study.slug} delay={index * 0.06}>
-                <article
-                  className={`card case-card expandable-card ${expandedCase === study.slug ? "expanded" : ""}`}
-                  role="button"
-                  tabIndex={0}
-                  onClick={() => setExpandedCase(expandedCase === study.slug ? null : study.slug)}
-                  onKeyDown={(event) => {
-                    if (event.key === "Enter" || event.key === " ") {
-                      event.preventDefault();
-                      setExpandedCase(expandedCase === study.slug ? null : study.slug);
-                    }
-                  }}
+          <div
+            className="case-reel"
+            onMouseEnter={() => setIsCaseCarouselPaused(true)}
+            onMouseLeave={() => setIsCaseCarouselPaused(false)}
+          >
+            <FadeIn key={activeCase.slug}>
+              <article className="card case-card case-reel-card-base is-active">
+                <div className="case-reel-topline">
+                  <p className="tag">{activeCase.industry}</p>
+                  <span className="case-reel-index">{String(activeCaseIndex + 1).padStart(2, "0")}</span>
+                </div>
+                <h3>{activeCase.title}</h3>
+                <p className="case-preview">{truncate(activeCase.transformation, 220)}</p>
+                <div className="case-detail-stack">
+                  <p>
+                    <strong>Problem:</strong> {activeCase.problem}
+                  </p>
+                  <p>
+                    <strong>Architecture:</strong> {activeCase.architecture}
+                  </p>
+                  <p>
+                    <strong>Outcomes:</strong> {activeCase.outcomes.join("; ")}
+                  </p>
+                  <div className="case-stack-chips">
+                    {activeCase.stack.slice(0, 5).map((item) => (
+                      <span key={`${activeCase.slug}-${item}`} className="case-stack-chip">
+                        {item}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+                <Link href={`/case-studies/${activeCase.slug}`} className="inline-link">
+                  View full case study
+                </Link>
+              </article>
+            </FadeIn>
+            <div className="case-selector-rail" aria-label="Case study selector">
+              {caseStudies.map((study, index) => (
+                <button
+                  key={study.slug}
+                  type="button"
+                  className={`case-selector-card ${index === activeCaseIndex ? "active" : ""}`}
+                  onClick={() => setActiveCaseIndex(index)}
                 >
-                  <p className="tag">{study.industry}</p>
-                  <h3>{study.title}</h3>
-                  {expandedCase === study.slug ? (
-                    <>
-                      <p>
-                        <strong>Problem:</strong> {study.problem}
-                      </p>
-                      <p>
-                        <strong>Architecture:</strong> {study.architecture}
-                      </p>
-                      <p>
-                        <strong>Transformation:</strong> {study.transformation}
-                      </p>
-                      <p>
-                        <strong>Outcomes:</strong> {study.outcomes.join("; ")}
-                      </p>
-                    </>
-                  ) : (
-                    <p className="preview-text">{truncate(study.transformation, 165)}</p>
-                  )}
-                  <p className="expand-hint">{expandedCase === study.slug ? "Click to collapse" : "Click to expand"}</p>
-                  <Link href={`/case-studies/${study.slug}`} className="inline-link">
-                    View full case study
-                  </Link>
-                </article>
-              </FadeIn>
-            ))}
+                  <span>{String(index + 1).padStart(2, "0")}</span>
+                  <strong>{study.title}</strong>
+                  <small>{study.industry}</small>
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="case-reel-controls">
+            <button
+              type="button"
+              className="case-reel-control"
+              onClick={() => setActiveCaseIndex((current) => (current - 1 + caseStudies.length) % caseStudies.length)}
+            >
+              Previous
+            </button>
+            <div className="case-reel-dots" aria-label="Case study selector">
+              {caseStudies.map((study, index) => (
+                <button
+                  key={study.slug}
+                  type="button"
+                  className={`case-reel-dot ${index === activeCaseIndex ? "active" : ""}`}
+                  onClick={() => setActiveCaseIndex(index)}
+                  aria-label={`Show ${study.title}`}
+                />
+              ))}
+            </div>
+            <button
+              type="button"
+              className="case-reel-control"
+              onClick={() => setActiveCaseIndex((current) => (current + 1) % caseStudies.length)}
+            >
+              Next
+            </button>
           </div>
         </Container>
       </section>

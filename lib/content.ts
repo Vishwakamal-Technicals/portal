@@ -43,6 +43,12 @@ export type TeamMember = {
   imageAlt: string;
 };
 
+export type AdvisoryMember = {
+  name: string;
+  title: string;
+  vision: string;
+};
+
 export const navLinks = [
   { label: "Who We Are", href: "#who-we-are" },
   { label: "About Us", href: "#about-us" },
@@ -448,6 +454,40 @@ export const caseStudies: CaseStudy[] = [
     stack: ["Java", "Spring Boot", "HL7 v2", "FHIR", "Kafka", "Redis", "PostgreSQL", "AWS"]
   },
   {
+    slug: "payment-event-stream-reliability",
+    title: "Payment Event Stream Reliability Layer",
+    industry: "FinTech Backend",
+    problem:
+      "A payment platform was losing track of asynchronous transaction states during peak traffic, which created retry storms, duplicate callbacks, and delayed settlement confirmation.",
+    architecture:
+      "We introduced an idempotent event-processing layer with Java Spring Boot services, Kafka outbox publishing, Redis-based deduplication keys, and PostgreSQL audit tables. Poison messages were isolated through dead-letter queues and replay tooling, while observability traces made every transaction state traceable end to end.",
+    transformation:
+      "The payment backbone shifted from brittle retries to deterministic event handling, letting operations teams recover failures without corrupting transaction state.",
+    outcomes: [
+      "72% reduction in duplicate payment callbacks",
+      "59% lower incident volume tied to retry storms",
+      "99.995% confirmed delivery reliability across payment events"
+    ],
+    stack: ["Java", "Spring Boot", "Kafka", "Redis", "PostgreSQL", "Dead-Letter Queues", "OpenTelemetry", "AWS"]
+  },
+  {
+    slug: "settlement-reconciliation-automation",
+    title: "Settlement Reconciliation Automation Core",
+    industry: "Banking Backend",
+    problem:
+      "Nightly settlement runs were taking hours because transaction matching, exception handling, and report generation were all handled by a brittle batch workflow.",
+    architecture:
+      "We replaced the batch-only flow with a reconciliation orchestration service built in Go and Java, backed by Kafka event ingestion, PostgreSQL matching tables, and Redis work queues. Rules-based exception scoring and ledger diffs were exposed through an operator dashboard for faster remediation.",
+    transformation:
+      "Finance and operations teams gained a near-real-time view of mismatches instead of waiting for overnight reports to surface issues.",
+    outcomes: [
+      "64% faster reconciliation completion time",
+      "47% reduction in manual exception handling",
+      "88% improvement in same-day mismatch resolution"
+    ],
+    stack: ["Go", "Java", "Kafka", "Redis", "PostgreSQL", "Node.js", "Operator Dashboards", "AWS"]
+  },
+  {
     slug: "ecommerce-platform-scale-optimization",
     title: "E-commerce Platform Scale Optimization",
     industry: "E-commerce",
@@ -480,6 +520,40 @@ export const caseStudies: CaseStudy[] = [
       "42% lower escalation volume for repetitive operational issues"
     ],
     stack: ["Python", "FastAPI", "RAG", "Vector Database", "Kafka", "Redis", "PostgreSQL", "OpenAI"]
+  },
+  {
+    slug: "rag-pipeline-hybrid-retrieval",
+    title: "RAG Pipeline with Hybrid Retrieval",
+    industry: "Gen AI",
+    problem:
+      "A knowledge assistant was answering from stale documents and inconsistent retrieval paths, which made responses unreliable and difficult to trust in production support workflows.",
+    architecture:
+      "We built a Python RAG pipeline with document chunking, metadata-aware ingestion, hybrid keyword and vector retrieval, reranking, and source attribution. Evaluation sets and retrieval metrics were added so every model update could be tested against quality gates before release.",
+    transformation:
+      "The assistant began surfacing fresher, better-grounded answers and gave teams confidence to use AI in high-frequency support and operations tasks.",
+    outcomes: [
+      "3.9x improvement in answer grounding accuracy",
+      "61% fewer unsupported AI responses",
+      "44% faster support knowledge lookup time"
+    ],
+    stack: ["Python", "FastAPI", "RAG", "Hybrid Search", "Vector Database", "Rerankers", "PostgreSQL", "OpenAI"]
+  },
+  {
+    slug: "llm-observability-guardrails",
+    title: "LLM Observability and Guardrails Layer",
+    industry: "Gen AI",
+    problem:
+      "Teams were experimenting with LLM features, but there was no clear way to trace prompts, monitor outputs, or block risky responses before they reached users.",
+    architecture:
+      "We implemented a policy-driven LLM operations layer with prompt versioning, response evaluation, content filters, usage tracing, and feedback capture. The service sat between product apps and model providers so the organization could enforce guardrails without slowing down iteration.",
+    transformation:
+      "AI releases became measurable and governable, with product teams able to ship faster while maintaining control over quality, safety, and cost.",
+    outcomes: [
+      "58% reduction in unsafe or off-policy completions",
+      "Full prompt-to-response traceability across production traffic",
+      "2.6x faster AI feature release validation"
+    ],
+    stack: ["Python", "FastAPI", "Prompt Registry", "Policy Engine", "OpenTelemetry", "Redis", "PostgreSQL", "OpenAI"]
   },
   {
     slug: "augmented-reality-media-enhancement-suite",
@@ -632,32 +706,35 @@ export const leadershipMembers: TeamMember[] = [
     title: "Managing Director",
     vision:
       "Sameer leads Vishwakamal Technicals with a long-term vision to build a trusted, high-impact technology organization that solves real business problems with practical, scalable systems clients can confidently grow on.",
-    imageUrl: "/images/team/sameer-gupta.png",
-    imageAlt: "Stylized avatar for Sameer Gupta"
+    imageUrl: "/images/team/MD.jpeg",
+    imageAlt: "Portrait of Sameer Gupta"
   },
   {
     name: "Sachin Gupta",
     title: "Chief Financial Officer (CFO)",
     vision:
       "Sachin drives financial strategy with disciplined capital planning, delivery-linked budgeting, and risk-aware growth governance so every major technology investment contributes to durable profitability and operational resilience.",
-    imageUrl: "/images/team/sachin-gupta.png",
-    imageAlt: "Stylized avatar for Sachin Gupta"
-  },
+    imageUrl: "/images/team/CFO.png",
+    imageAlt: "Portrait of Sachin Gupta"
+  }
+];
+
+export const internalContributors: TeamMember[] = [
   {
     name: "Sarthak Mehrotra",
     title: "Legal Advisor",
     vision:
-      "Sarthak anchors legal strategy across contracts, compliance, and data governance, helping the company and its clients execute large digital programs with clarity, trust, and defensible legal foundations.",
+      "Sarthak anchors contracts, compliance, and governance so the company can scale with legal clarity and strong operational discipline.",
     imageUrl: "/images/team/sarthak-mehrotra.png",
     imageAlt: "Stylized avatar for Sarthak Mehrotra"
   },
   {
-    name: "Gunjan Ahuja",
+    name: "Nikita Gupta",
     title: "Head HR",
     vision:
-      "Gunjan leads people strategy with a focus on thoughtful hiring, strong internal culture, and scalable team structures so the company can grow without losing execution quality, accountability, or human connection.",
+      "Nikita shapes hiring, culture, and people systems that keep the organization aligned, resilient, and human as it grows.",
     imageUrl: "/images/team/gunjan-ahuja.png",
-    imageAlt: "Stylized avatar for Gunjan Ahuja"
+    imageAlt: "Stylized avatar for Nikita Gupta"
   }
 ];
 
@@ -717,5 +794,20 @@ export const technicalTeamMembers: TeamMember[] = [
       "Tarandeep leads the data science practice with a focus on production-ready analytics, model lifecycle governance, and decision intelligence systems that convert complex datasets into measurable business action.",
     imageUrl: "/images/team/tarandeep-singh-wasu.png",
     imageAlt: "Stylized avatar for Tarandeep Singh Wasu"
+  }
+];
+
+export const strategicPartners: AdvisoryMember[] = [
+  {
+    name: "Abhash",
+    title: "Strategic Partner, Wealth Management",
+    vision:
+      "Abhash supports clients with insurance planning, wealth protection, and long-term financial structuring so business and personal assets are managed with clarity and care."
+  },
+  {
+    name: "Ashish",
+    title: "Strategic Partner, Wealth Management",
+    vision:
+      "Ashish advises on wealth management, insurance solutions, and portfolio-led financial planning, helping clients make confident decisions across growth, security, and legacy goals."
   }
 ];

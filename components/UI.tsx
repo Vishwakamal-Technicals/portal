@@ -20,10 +20,10 @@ export function SectionHeader({ eyebrow, title, subtitle }: { eyebrow: string; t
 export function FadeIn({ children, delay = 0 }: PropsWithChildren<{ delay?: number }>) {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
+      initial={{ opacity: 0, y: 34, scale: 0.98, filter: "blur(10px)" }}
+      whileInView={{ opacity: 1, y: 0, scale: 1, filter: "blur(0px)" }}
       viewport={{ once: true, margin: "-80px" }}
-      transition={{ duration: 0.5, ease: "easeOut", delay }}
+      transition={{ duration: 0.68, ease: [0.16, 1, 0.3, 1], delay }}
     >
       {children}
     </motion.div>
